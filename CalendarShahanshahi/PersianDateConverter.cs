@@ -70,59 +70,71 @@ public class PersianDateConverter
 
 
     //  تبدیل شاهنشاهی به میلادی
-    public DateTime ShahanshahiToMiladi(int shahanshahiYear, int shamsiMonth, int shamsiDay)
+    public DateTime ShahanshahiToMiladi(string date)
     {
-        // تبدیل سال شاهنشاهی به شمسی
-        int shamsiYear = shahanshahiYear - 1180; // اختلاف ثابت
-
-        // تبدیل شمسی به میلادی
-        int baseShamsiYear = 1300;
-        DateTime baseMiladiDate = new DateTime(1921, 3, 21); // معادل 1 فروردین 1300
-        int daysSinceBase = 0;
-
-        // محاسبه تعداد روزهای کامل سال‌های گذشته
-        int yearsDiff = shamsiYear - baseShamsiYear;
-        int daysInYear;
-        int tempYear = baseShamsiYear;
-
-        while (tempYear < shamsiYear)
+        string[] parts = date.Split('/');
+        if (parts.Length != 3 ||
+            !int.TryParse(parts[0], out int shahanshahiYear) ||
+            !int.TryParse(parts[1], out int shamsiMonth) ||
+            !int.TryParse(parts[2], out int shamsiDay) ||
+            shamsiMonth < 1 || shamsiMonth > 12 ||
+            shamsiDay < 1 || shamsiDay > 31)
         {
-            daysInYear = (tempYear % 33 == 1 || tempYear % 33 == 5 || tempYear % 33 == 9 ||
-                          tempYear % 33 == 13 || tempYear % 33 == 17 || tempYear % 33 == 22 ||
-                          tempYear % 33 == 26 || tempYear % 33 == 30) ? 366 : 365;
-            daysSinceBase += daysInYear;
-            tempYear++;
+            throw new ArgumentException("لطفاً تاریخ را با فرمت yyyy/MM/dd وارد کنید (مثلاً 2550/12/16).");
         }
-        while (tempYear > shamsiYear)
         {
-            tempYear--;
-            daysInYear = (tempYear % 33 == 1 || tempYear % 33 == 5 || tempYear % 33 == 9 ||
-                          tempYear % 33 == 13 || tempYear % 33 == 17 || tempYear % 33 == 22 ||
-                          tempYear % 33 == 26 || tempYear % 33 == 30) ? 366 : 365;
-            daysSinceBase -= daysInYear;
+            // تبدیل سال شاهنشاهی به شمسی
+            int shamsiYear = shahanshahiYear - 1180; // اختلاف ثابت
+
+            // تبدیل شمسی به میلادی
+            int baseShamsiYear = 1300;
+            DateTime baseMiladiDate = new DateTime(1921, 3, 21); // معادل 1 فروردین 1300
+            int daysSinceBase = 0;
+
+            // محاسبه تعداد روزهای کامل سال‌های گذشته
+            int yearsDiff = shamsiYear - baseShamsiYear;
+            int daysInYear;
+            int tempYear = baseShamsiYear;
+
+            while (tempYear < shamsiYear)
+            {
+                daysInYear = (tempYear % 33 == 1 || tempYear % 33 == 5 || tempYear % 33 == 9 ||
+                              tempYear % 33 == 13 || tempYear % 33 == 17 || tempYear % 33 == 22 ||
+                              tempYear % 33 == 26 || tempYear % 33 == 30) ? 366 : 365;
+                daysSinceBase += daysInYear;
+                tempYear++;
+            }
+            while (tempYear > shamsiYear)
+            {
+                tempYear--;
+                daysInYear = (tempYear % 33 == 1 || tempYear % 33 == 5 || tempYear % 33 == 9 ||
+                              tempYear % 33 == 13 || tempYear % 33 == 17 || tempYear % 33 == 22 ||
+                              tempYear % 33 == 26 || tempYear % 33 == 30) ? 366 : 365;
+                daysSinceBase -= daysInYear;
+            }
+
+            // اضافه کردن روزهای ماه‌ها
+            int tempMonth = 1;
+            int daysInMonth;
+            while (tempMonth < shamsiMonth)
+            {
+                daysInMonth = tempMonth <= 6 ? 31 :
+                              tempMonth <= 11 ? 30 :
+                              (shamsiYear % 33 == 1 || shamsiYear % 33 == 5 || shamsiYear % 33 == 9 ||
+                               shamsiYear % 33 == 13 || shamsiYear % 33 == 17 || shamsiYear % 33 == 22 ||
+                               shamsiYear % 33 == 26 || shamsiYear % 33 == 30) ? 30 : 29;
+                daysSinceBase += daysInMonth;
+                tempMonth++;
+            }
+
+            // اضافه کردن روزهای باقی‌مانده
+            daysSinceBase += (shamsiDay - 1);
+
+            // محاسبه تاریخ میلادی
+            DateTime miladiDate = baseMiladiDate.AddDays(daysSinceBase);
+
+            return miladiDate;
         }
 
-        // اضافه کردن روزهای ماه‌ها
-        int tempMonth = 1;
-        int daysInMonth;
-        while (tempMonth < shamsiMonth)
-        {
-            daysInMonth = tempMonth <= 6 ? 31 :
-                          tempMonth <= 11 ? 30 :
-                          (shamsiYear % 33 == 1 || shamsiYear % 33 == 5 || shamsiYear % 33 == 9 ||
-                           shamsiYear % 33 == 13 || shamsiYear % 33 == 17 || shamsiYear % 33 == 22 ||
-                           shamsiYear % 33 == 26 || shamsiYear % 33 == 30) ? 30 : 29;
-            daysSinceBase += daysInMonth;
-            tempMonth++;
-        }
-
-        // اضافه کردن روزهای باقی‌مانده
-        daysSinceBase += (shamsiDay - 1);
-
-        // محاسبه تاریخ میلادی
-        DateTime miladiDate = baseMiladiDate.AddDays(daysSinceBase);
-
-        return miladiDate;
     }
-
 }

@@ -61,7 +61,7 @@ namespace CalendarShahanshahi
                     }
 
                     // تبدیل شاهنشاهی به میلادی
-                    DateTime miladiDate = converter.ShahanshahiToMiladi(shahanshahiYear, shamsiMonth, shamsiDay);
+                    DateTime miladiDate = converter.ShahanshahiToMiladi(input);
 
                     // نمایش تاریخ میلادی با فرمت استاندارد
                     CultureInfo miladiCulture = new CultureInfo("en-US"); // خروجی به‌عنوان میلادی
